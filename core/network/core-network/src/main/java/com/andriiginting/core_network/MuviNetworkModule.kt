@@ -17,7 +17,7 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
-class MuviNetworkModule(private val url: String) {
+class MuviNetworkModule(private val networkUrl: String) {
 
     @Provides
     @Singleton
@@ -27,7 +27,7 @@ class MuviNetworkModule(private val url: String) {
     @Singleton
     @Named("MuviHomeService")
     fun providesRetrofit(@Named("MuviHttpCliet") okHttpClient: OkHttpClient): Retrofit {
-        return retrofitFactory(okHttpClient, url)
+        return retrofitFactory(okHttpClient, networkUrl)
     }
 
     @Provides
@@ -88,8 +88,7 @@ class MuviNetworkModule(private val url: String) {
     private fun serviceHTTPClient(): Interceptor {
         return Interceptor { chain ->
             val original = chain.request()
-            val requestUrl = original
-                .url()
+            val requestUrl = original.url()
                 .newBuilder()
                 .addQueryParameter("api_key", BuildConfig.API_KEY)
                 .build()

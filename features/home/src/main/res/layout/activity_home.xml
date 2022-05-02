@@ -8,13 +8,21 @@
     android:fitsSystemWindows="true"
     tools:context=".ui.HomeActivity">
 
-    <com.andriiginting.muvi.home.ui.searchbar.HomeSearchBarView
-        android:id="@+id/searchBar"
-        android:layout_width="match_parent"
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/compose_view"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"/>
+
+<!--    <com.andriiginting.muvi.home.ui.searchbar.HomeSearchBarView-->
+<!--        android:id="@+id/searchBar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
 
     <include
         android:id="@+id/cardBannerView"

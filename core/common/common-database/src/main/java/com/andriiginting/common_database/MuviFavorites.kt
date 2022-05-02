@@ -13,5 +13,5 @@ data class MuviFavorites(
     @ColumnInfo(name = "overview") var overview: String = "",
     @ColumnInfo(name = "backdrop_path") var backdropPath: String = "",
     @ColumnInfo(name = "release_data") var releaseDate: String = "",
-    @ColumnInfo(name = "id") @PrimaryKey(autoGenerate = true) val id: Int = 0
+    @ColumnInfo(name = "id") @PrimaryKey(autoGenerate = true) var id: Int = 0
 )

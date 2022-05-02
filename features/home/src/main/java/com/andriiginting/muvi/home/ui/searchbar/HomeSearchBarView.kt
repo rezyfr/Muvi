@@ -17,6 +17,10 @@ class HomeSearchBarView @JvmOverloads constructor(
         setupView()
     }
 
+    override fun onViewAdded(child: View?) {
+        super.onViewAdded(child)
+    }
+
     private fun setupView() {
         setOnClickListener {
             SearchNavigator
@@ -24,5 +28,4 @@ class HomeSearchBarView @JvmOverloads constructor(
                 .also(context::startActivity)
         }
     }
-
 }

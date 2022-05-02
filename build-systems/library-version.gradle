@@ -26,6 +26,8 @@ ext {
     constraintLayoutVersion = '2.0.0-beta4'
     roomVersion = "2.2.5"
 
+    /** Jetpack Compose */
+    composeVersion = "1.0.5"
     stethoVersion = "1.5.1"
 
     libraries = [
@@ -49,6 +51,12 @@ ext {
             glideOkHttp3             : "com.github.bumptech.glide:okhttp3-integration:1.5.0",
             javaxInject              : "javax.inject:javax.inject:1",
             multidex                 : "androidx.multidex:multidex:2.0.1",
+            compose                  : "androidx.compose.ui:ui:${composeVersion}",
+            composeCompiler           : "androidx.compose.compiler:compiler:1.1.0-beta03",
+            composeRuntime           : "androidx.compose.runtime:runtime:1.1.0-beta03",
+            composeMaterial          : "androidx.compose.material:material:${composeVersion}",
+            composeUiTooling         : "androidx.compose.ui:ui-tooling-preview:${composeVersion}",
+            composeTest              : "androidx.compose.ui:ui-test-junit4:${composeVersion}",
             lifecycleRuntime         : "androidx.lifecycle:lifecycle-runtime:${lifecycleVersion}",
             lifecycleExtentions      : "androidx.lifecycle:lifecycle-extensions:${lifecycleVersion}",
             lifecycleCompiler        : "androidx.lifecycle:lifecycle-compiler:${lifecycleVersion}",
@@ -67,7 +75,7 @@ ext {
             deeplinkDispatchProcessor: "com.airbnb:deeplinkdispatch-processor:${deeplinkDispatchVersion}",
             stetho                   : "com.facebook.stetho:stetho:$stethoVersion",
             shimmer                  : 'com.facebook.shimmer:shimmer:0.5.0',
-            leakCanary               : 'com.squareup.leakcanary:leakcanary-android:2.6',
+            leakCanary               : 'com.squareup.leakcanary:leakcanary-android:2.9.1',
             rxRelay                  : 'com.jakewharton.rxrelay2:rxrelay:2.0.0',
             RxBinding                : 'com.jakewharton.rxbinding3:rxbinding:3.0.0',
             sqlChiper                : "net.zetetic:android-database-sqlcipher:4.4.0",
@@ -78,7 +86,7 @@ ext {
             design          : "com.google.android.material:material:1.2.0-beta01",
             recyclerView    : "androidx.recyclerview:recyclerview:1.0.0",
             cardView        : "androidx.cardview:cardview:1.0.0",
-            appCompat       : "androidx.appcompat:appcompat:1.1.0-rc01",
+            appCompat       : "androidx.appcompat:appcompat:1.3.0",
             constraintLayout: "androidx.constraintlayout:constraintlayout:${constraintLayoutVersion}",
             support         : "androidx.legacy:legacy-support-v4:1.0.0",
             playCore        : "com.google.android.play:core:1.5.0"

@@ -10,15 +10,15 @@
     android:orientation="horizontal"
     android:padding="8dp">
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_search_grey" />
+<!--    <androidx.appcompat.widget.AppCompatImageView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:src="@drawable/ic_search_grey" />-->
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:gravity="center_vertical"
-        android:text="@string/muvi_search_hint" />
+<!--    <TextView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="16dp"-->
+<!--        android:gravity="center_vertical"-->
+<!--        android:text="@string/muvi_search_hint" />-->
 </LinearLayout>
