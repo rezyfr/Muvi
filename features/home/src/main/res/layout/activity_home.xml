@@ -16,24 +16,6 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"/>
 
-<!--    <com.andriiginting.muvi.home.ui.searchbar.HomeSearchBarView-->
-<!--        android:id="@+id/searchBar"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
-    <include
-        android:id="@+id/cardBannerView"
-        layout="@layout/item_home_banner_component"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_margin="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/compose_view" />
-
     <com.andriiginting.muvi.home.ui.filter.HomeFilterView
         android:id="@+id/filterView"
         android:layout_width="match_parent"
@@ -41,7 +23,7 @@
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardBannerView" />
+        app:layout_constraintTop_toBottomOf="@id/compose_view" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMovies"

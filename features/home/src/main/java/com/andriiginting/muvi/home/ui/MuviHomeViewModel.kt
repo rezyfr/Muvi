@@ -2,18 +2,23 @@ package com.andriiginting.muvi.home.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.andriiginting.base_ui.MuviBaseViewModel
 import com.andriiginting.core_network.HomeBannerData
 import com.andriiginting.core_network.MovieResponse
 import com.andriiginting.muvi.home.domain.MuviHomeUseCase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MuviHomeViewModel @Inject constructor(
     private val useCase: MuviHomeUseCase
 ) : MuviBaseViewModel<HomeViewState>() {
 
-    private val _bannerState: MutableLiveData<HomeBannerState> = MutableLiveData()
-    val bannerState: LiveData<HomeBannerState>
+    private val _bannerState: MutableStateFlow<HomeBannerState> = MutableStateFlow(HomeBannerState.BannerEmpty)
+    val bannerState: StateFlow<HomeBannerState>
         get() = _bannerState
 
     fun getMovieData() {
@@ -41,7 +46,9 @@ class MuviHomeViewModel @Inject constructor(
     fun getHomeBanner() {
         useCase.getHomeBanner()
             .subscribe({ data ->
-                _bannerState.postValue(HomeBannerState.GetHomeBannerData(data))
+                viewModelScope.launch (Dispatchers.IO){
+                    _bannerState.emit(HomeBannerState.GetHomeBannerData(data))
+                }
             }, {
                 _bannerState.value = HomeBannerState.BannerError
             }).let(addDisposable::add)
@@ -110,6 +117,7 @@ class MuviHomeViewModel @Inject constructor(
 
 sealed class HomeBannerState {
     object BannerError: HomeBannerState()
+    object BannerEmpty: HomeBannerState()
     data class GetHomeBannerData(val data: HomeBannerData) : HomeBannerState()
 }
 

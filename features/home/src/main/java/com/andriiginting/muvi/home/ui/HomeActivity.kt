@@ -5,15 +5,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
@@ -28,12 +31,11 @@ import com.andriiginting.muvi.home.di.MuviHomeInjector
 import com.andriiginting.navigation.DetailNavigator
 import com.andriiginting.navigation.FavoriteNavigator
 import com.andriiginting.navigation.SearchNavigator
-import com.andriiginting.uttils.loadImage
+import com.andriiginting.uttils.BuildConfig
 import com.andriiginting.uttils.makeGone
 import com.andriiginting.uttils.makeVisible
 import com.andriiginting.uttils.setGridView
 import kotlinx.android.synthetic.main.activity_home.*
-import kotlinx.android.synthetic.main.item_home_banner_component.*
 
 private const val HOME_COLUMN_SIZE = 2
 
@@ -71,7 +73,12 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
         }
         compose_view.apply {
             setContent {
-                SearchBar()
+                Surface(modifier = Modifier.padding(horizontal = 8.dp)) {
+                    Column() {
+                        SearchBar()
+                        HomeBanner()
+                    }
+                }
             }
         }
     }
@@ -124,25 +131,70 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
         })
     }
 
-    private fun setupObserver() {
-        viewModel.bannerState.observe(this, Observer { state ->
-            when (state) {
-                is HomeBannerState.BannerError -> {
-                    cardBannerView.makeGone()
-                }
-                is HomeBannerState.GetHomeBannerData -> {
-                    tvMovieBannerTitle.text = state.data.movie.title
-                    ivMovieBanner.apply {
-                        loadImage(state.data.movie.backdropPath.orEmpty())
-                        setOnClickListener {
-                            DetailNavigator
-                                .getDetailPageIntent(state.data.movie.id)
-                                .also(::startActivity)
+    @OptIn(ExperimentalMaterialApi::class)
+    @Composable
+    private fun HomeBanner() {
+        when (val state = viewModel.bannerState.collectAsState().value) {
+            is HomeBannerState.GetHomeBannerData -> {
+                Card(shape = RoundedCornerShape(16.dp),
+                    elevation = 4.dp,
+                    backgroundColor = Color(0xFFDDDDDD),
+                    modifier = Modifier
+                        .padding(top = 8.dp),
+                    onClick = {
+                        DetailNavigator
+                            .getDetailPageIntent(state.data.movie.id)
+                            .also(::startActivity)
+                    }) {
+                    Column() {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                        ) {
+                            Image(
+                                rememberImagePainter(data = BuildConfig.IMAGE_BASE_URL + state.data.movie.backdropPath.orEmpty()),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                            )
                         }
+                        Text(
+                            state.data.movie.title,
+                            color = Color.White,
+                            style = TextStyle(fontWeight = FontWeight.Bold),
+                            modifier = Modifier
+                                .background(Color(0x37000000))
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                        )
                     }
                 }
             }
-        })
+            else -> {}
+        }
+    }
+
+    private fun setupObserver() {
+//        viewModel.bannerState.observe(this, Observer { state ->
+//            when (state) {
+//                is HomeBannerState.BannerError -> {
+//                    cardBannerView.makeGone()
+//                }
+//                is HomeBannerState.GetHomeBannerData -> {
+//                    tvMovieBannerTitle.text = state.data.movie.title
+//                    ivMovieBanner.apply {
+//                        loadImage(state.data.movie.backdropPath.orEmpty())
+//                        setOnClickListener {
+//                            DetailNavigator
+//                                .getDetailPageIntent(state.data.movie.id)
+//                                .also(::startActivity)
+//                        }
+//                    }
+//                }
+//            }
+//        })
 
         viewModel.state.observe(this, Observer { state ->
             when (state) {
@@ -164,7 +216,6 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
 
                     fabFavoriteMovie.makeVisible()
                     rvMovies.makeVisible()
-                    cardBannerView.makeVisible()
                 }
                 is HomeViewState.GetMovieDataError -> {
                     layoutError.showErrorScreen()
@@ -184,18 +235,39 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
     }
 
     @Composable
-    fun SearchBar(){
-        Surface(modifier = Modifier.padding(horizontal = 8.dp)) {
-            Box(modifier = Modifier.fillMaxWidth().clickable {
+    fun SearchBar() {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
                 SearchNavigator
                     .getSearchPageIntent()
                     .also(this@HomeActivity::startActivity)
-            }){
-                Image(rememberImagePainter(ContextCompat.getDrawable(this@HomeActivity,R.drawable.rounded_stroke_grey)), contentDescription = null,contentScale = ContentScale.FillBounds,modifier = Modifier.matchParentSize())
-                Row(modifier = Modifier.padding(8.dp)) {
-                    Image(rememberImagePainter(ContextCompat.getDrawable(this@HomeActivity,R.drawable.ic_search_grey)), contentDescription = null, Modifier.size(24.dp))
-                    Text(text = stringResource(id = R.string.muvi_search_hint), modifier = Modifier.padding(start = 16.dp), color = Color(0xFFA0A4A8))
-                }
+            }) {
+            Image(
+                rememberImagePainter(
+                    ContextCompat.getDrawable(
+                        this@HomeActivity,
+                        R.drawable.rounded_stroke_grey
+                    )
+                ),
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.matchParentSize()
+            )
+            Row(modifier = Modifier.padding(8.dp)) {
+                Image(
+                    rememberImagePainter(
+                        ContextCompat.getDrawable(
+                            this@HomeActivity,
+                            R.drawable.ic_search_grey
+                        )
+                    ), contentDescription = null, Modifier.size(24.dp)
+                )
+                Text(
+                    text = stringResource(id = R.string.muvi_search_hint),
+                    modifier = Modifier.padding(start = 16.dp),
+                    color = Color(0xFFA0A4A8)
+                )
             }
         }
     }

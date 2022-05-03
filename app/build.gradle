@@ -26,6 +26,7 @@ android {
             buildConfigField("String", "HOST_BASE_URL", movieApiURL)
             buildConfigField("String", "IMAGE_BASE_URL", movieImageUrl)
             applicationIdSuffix ".debug"
+            debuggable true
         }
 
         release {
