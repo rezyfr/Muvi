@@ -1,11 +1,10 @@
 package com.andriiginting.muvi.home.ui
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.andriiginting.base_ui.MuviBaseViewModel
 import com.andriiginting.core_network.HomeBannerData
 import com.andriiginting.core_network.MovieResponse
+import com.andriiginting.muvi.home.domain.Filter
 import com.andriiginting.muvi.home.domain.MuviHomeUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,9 +16,27 @@ class MuviHomeViewModel @Inject constructor(
     private val useCase: MuviHomeUseCase
 ) : MuviBaseViewModel<HomeViewState>() {
 
-    private val _bannerState: MutableStateFlow<HomeBannerState> = MutableStateFlow(HomeBannerState.BannerEmpty)
+    private val _bannerState: MutableStateFlow<HomeBannerState> =
+        MutableStateFlow(HomeBannerState.BannerEmpty)
     val bannerState: StateFlow<HomeBannerState>
         get() = _bannerState
+
+    private val _filterState: MutableStateFlow<Filter> = MutableStateFlow(Filter.ALL)
+    val filterState: StateFlow<Filter>
+        get() = _filterState
+
+    fun setFilterType(filter: Filter?) {
+        if (filter != null) {
+            _filterState.value = filter
+            when (filter) {
+                Filter.ALL -> getMovieData()
+                Filter.LATEST -> getLatestMovieData()
+                Filter.NOW_PLAYING -> getNowPlayingMovieData()
+                Filter.TOP_RATED -> getTopRatedMovieData()
+                Filter.UPCOMING -> getUpcomingMovieData()
+            }
+        }
+    }
 
     fun getMovieData() {
         useCase.getAllMovies()
@@ -32,21 +49,10 @@ class MuviHomeViewModel @Inject constructor(
             }).let(addDisposable::add)
     }
 
-    fun getFilteredData(position: Int) {
-        when (position) {
-            ALL_MOVIE_POSITION -> getMovieData()
-            LATEST_MOVIE_POSITION -> getLatestMovieData()
-            NOW_PLAYING_MOVIE_POSITION -> getNowPlayingMovieData()
-            TOP_RATED_MOVIE_POSITION -> getTopRatedMovieData()
-            UPCOMING_MOVIE_DATA_POSITION -> getUpcomingMovieData()
-            else -> getMovieData()
-        }
-    }
-
     fun getHomeBanner() {
         useCase.getHomeBanner()
             .subscribe({ data ->
-                viewModelScope.launch (Dispatchers.IO){
+                viewModelScope.launch(Dispatchers.IO) {
                     _bannerState.emit(HomeBannerState.GetHomeBannerData(data))
                 }
             }, {
@@ -105,26 +111,18 @@ class MuviHomeViewModel @Inject constructor(
             _state.postValue(HomeViewState.GetMovieData(data))
         }
     }
-
-    companion object {
-        private const val ALL_MOVIE_POSITION = 0
-        private const val LATEST_MOVIE_POSITION = 1
-        private const val NOW_PLAYING_MOVIE_POSITION = 2
-        private const val TOP_RATED_MOVIE_POSITION = 3
-        private const val UPCOMING_MOVIE_DATA_POSITION = 4
-    }
 }
 
 sealed class HomeBannerState {
-    object BannerError: HomeBannerState()
-    object BannerEmpty: HomeBannerState()
+    object BannerError : HomeBannerState()
+    object BannerEmpty : HomeBannerState()
     data class GetHomeBannerData(val data: HomeBannerData) : HomeBannerState()
 }
 
 sealed class HomeViewState {
     object ShowLoading : HomeViewState()
     object HideLoading : HomeViewState()
-    object EmptyScreen: HomeViewState()
+    object EmptyScreen : HomeViewState()
 
     data class GetMovieData(val data: MovieResponse) : HomeViewState()
     data class GetMovieDataError(val error: Throwable) : HomeViewState()

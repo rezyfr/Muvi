@@ -4,7 +4,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
@@ -18,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
@@ -28,6 +31,10 @@ import com.andriiginting.base_ui.MuviBaseAdapter
 import com.andriiginting.core_network.MovieItem
 import com.andriiginting.muvi.home.R
 import com.andriiginting.muvi.home.di.MuviHomeInjector
+import com.andriiginting.muvi.home.domain.Filter
+import com.andriiginting.muvi.home.domain.getAllFilters
+import com.andriiginting.muvi.home.domain.getFilter
+import com.andriiginting.muvi.home.ui.filter.Chip
 import com.andriiginting.navigation.DetailNavigator
 import com.andriiginting.navigation.FavoriteNavigator
 import com.andriiginting.navigation.SearchNavigator
@@ -49,7 +56,6 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
         setUpAdapter()
         setUpHome()
         setupObserver()
-        setupFilterView()
         setupFavoriteButton()
     }
 
@@ -77,15 +83,14 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
                     Column() {
                         SearchBar()
                         HomeBanner()
+                        HomeFilter(
+                            selectedFilter = viewModel.filterState.collectAsState().value
+                        ){
+                            viewModel.setFilterType(getFilter(it))
+                        }
                     }
                 }
             }
-        }
-    }
-
-    private fun setupFilterView() {
-        filterView.setOnFilterListener { position ->
-            viewModel.getFilteredData(position)
         }
     }
 
@@ -176,26 +181,34 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
         }
     }
 
-    private fun setupObserver() {
-//        viewModel.bannerState.observe(this, Observer { state ->
-//            when (state) {
-//                is HomeBannerState.BannerError -> {
-//                    cardBannerView.makeGone()
-//                }
-//                is HomeBannerState.GetHomeBannerData -> {
-//                    tvMovieBannerTitle.text = state.data.movie.title
-//                    ivMovieBanner.apply {
-//                        loadImage(state.data.movie.backdropPath.orEmpty())
-//                        setOnClickListener {
-//                            DetailNavigator
-//                                .getDetailPageIntent(state.data.movie.id)
-//                                .also(::startActivity)
-//                        }
-//                    }
-//                }
-//            }
-//        })
+    @Composable
+    private fun HomeFilter(
+        filters: List<Filter> = getAllFilters(),
+        selectedFilter: Filter? = null,
+        onSelectedChanged: (String) -> Unit = {}
+    ) {
+        Column(modifier = Modifier.padding(top = 8.dp)) {
+            Text(
+                text = stringResource(id = R.string.home_filter_title),
+                color = Color.Black,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+            LazyRow {
+                items(filters) { filter ->
+                    Chip(
+                        name = filter.value,
+                        isSelected = selectedFilter == filter,
+                        onSelectionChanged = {
+                            onSelectedChanged(it)
+                        },
+                    )
+                }
+            }
+        }
+    }
 
+    private fun setupObserver() {
         viewModel.state.observe(this, Observer { state ->
             when (state) {
                 is HomeViewState.ShowLoading -> {

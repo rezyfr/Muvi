@@ -16,15 +16,6 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"/>
 
-    <com.andriiginting.muvi.home.ui.filter.HomeFilterView
-        android:id="@+id/filterView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/compose_view" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMovies"
         android:layout_width="match_parent"
@@ -33,7 +24,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/filterView"
+        app:layout_constraintTop_toBottomOf="@id/compose_view"
         tools:listitem="@layout/item_home_component" />
 
     <com.andriiginting.common_widget.MuviErrorScreen
@@ -64,7 +55,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/filterView"
+        app:layout_constraintTop_toBottomOf="@id/compose_view"
         tools:visibility="visible">
 
         <LinearLayout
