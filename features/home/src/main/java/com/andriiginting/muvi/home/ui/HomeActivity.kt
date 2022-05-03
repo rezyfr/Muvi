@@ -1,12 +1,17 @@
 package com.andriiginting.muvi.home.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -14,6 +19,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import coil.compose.rememberImagePainter
 import com.andriiginting.base_ui.MuviBaseActivity
 import com.andriiginting.base_ui.MuviBaseAdapter
 import com.andriiginting.core_network.MovieItem
@@ -21,6 +27,7 @@ import com.andriiginting.muvi.home.R
 import com.andriiginting.muvi.home.di.MuviHomeInjector
 import com.andriiginting.navigation.DetailNavigator
 import com.andriiginting.navigation.FavoriteNavigator
+import com.andriiginting.navigation.SearchNavigator
 import com.andriiginting.uttils.loadImage
 import com.andriiginting.uttils.makeGone
 import com.andriiginting.uttils.makeVisible
@@ -178,11 +185,17 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
 
     @Composable
     fun SearchBar(){
-        Surface(modifier = Modifier.padding(horizontal = 16.dp)) {
-//            Image(rememberAsyncImagePainter(ContextCompat.getDrawable(this,R.drawable.rounded_stroke_grey)), contentDescription = null)
-            Row(modifier = Modifier.padding(8.dp)) {
-//                Image(rememberAsyncImagePainter(ContextCompat.getDrawable(this@HomeActivity,R.drawable.ic_search_grey)), contentDescription = null)
-                Text(text = stringResource(id = R.string.muvi_search_hint), modifier = Modifier.padding(start = 16.dp))
+        Surface(modifier = Modifier.padding(horizontal = 8.dp)) {
+            Box(modifier = Modifier.fillMaxWidth().clickable {
+                SearchNavigator
+                    .getSearchPageIntent()
+                    .also(this@HomeActivity::startActivity)
+            }){
+                Image(rememberImagePainter(ContextCompat.getDrawable(this@HomeActivity,R.drawable.rounded_stroke_grey)), contentDescription = null,contentScale = ContentScale.FillBounds,modifier = Modifier.matchParentSize())
+                Row(modifier = Modifier.padding(8.dp)) {
+                    Image(rememberImagePainter(ContextCompat.getDrawable(this@HomeActivity,R.drawable.ic_search_grey)), contentDescription = null, Modifier.size(24.dp))
+                    Text(text = stringResource(id = R.string.muvi_search_hint), modifier = Modifier.padding(start = 16.dp), color = Color(0xFFA0A4A8))
+                }
             }
         }
     }
