@@ -8,20 +8,27 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import coil.compose.rememberImagePainter
+import com.airbnb.lottie.compose.*
 import com.andriiginting.base_ui.MuviBaseActivity
 import com.andriiginting.base_ui.MuviBaseAdapter
 import com.andriiginting.core_network.MovieItem
@@ -37,20 +44,16 @@ import com.andriiginting.navigation.SearchNavigator
 import com.andriiginting.uttils.BuildConfig
 import com.andriiginting.uttils.setGridView
 import kotlinx.android.synthetic.main.activity_home.*
+import kotlin.math.roundToInt
 
 private const val HOME_COLUMN_SIZE = 2
 
 class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
 
-    private lateinit var homeAdapter: MuviBaseAdapter<MovieItem, HomeViewHolder>
-
     override fun getLayoutId(): Int = R.layout.activity_home
 
     override fun setupView() {
-        setUpAdapter()
         setUpHome()
-        setupObserver()
-        setupFavoriteButton()
     }
 
     override fun setData() = viewModel.getMovieData()
@@ -67,15 +70,36 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
     }
 
     private fun setUpHome() {
-        rvMovies.apply {
-            setGridView(HOME_COLUMN_SIZE)
-            adapter = homeAdapter
-        }
         compose_view.apply {
             setContent {
+                val fabHeight = 72.dp
+                val fabHeightPx = with(
+                    LocalDensity.current
+                ) {
+                    fabHeight.roundToPx().toFloat()
+                }
+                val fabOffsetHeightPx = remember { mutableStateOf(0f) }
+
+                val nestedScrollConnection = remember {
+                    object : NestedScrollConnection {
+                        override fun onPreScroll(
+                            available: Offset,
+                            source: NestedScrollSource
+                        ): Offset {
+
+                            val delta = available.y
+                            val newOffset = fabOffsetHeightPx.value + delta
+                            fabOffsetHeightPx.value = newOffset.coerceIn(-fabHeightPx, 0f)
+
+                            return Offset.Zero
+                        }
+                    }
+                }
                 Scaffold(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    floatingActionButton = { HomeFloatingButton() }) {
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .nestedScroll(nestedScrollConnection),
+                    floatingActionButton = { HomeFloatingButton(fabOffsetHeightPx) }) {
                     Column() {
                         SearchBar()
                         HomeBanner()
@@ -89,39 +113,6 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
                 }
             }
         }
-    }
-
-    private fun setupFavoriteButton() {
-        rvMovies.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (dy > 0 || dy < 0) {
-//                    fabFavoriteMovie.hide()
-                }
-            }
-
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-//                    fabFavoriteMovie.show()
-                }
-            }
-        })
-    }
-
-
-    private fun setUpAdapter() {
-        homeAdapter = MuviBaseAdapter({ parent, _ ->
-            HomeViewHolder.inflate(parent)
-        }, { viewHolder, _, item ->
-            viewHolder.bind(item.posterPath.orEmpty())
-            viewHolder.setPosterAction {
-                DetailNavigator
-                    .getDetailPageIntent(item.id)
-                    .also(::startActivity)
-            }
-        })
     }
 
     @OptIn(ExperimentalMaterialApi::class)
@@ -203,21 +194,50 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
             is HomeViewState.ShowLoading -> {
                 HomeShimmer()
             }
-            is HomeViewState.HideLoading -> {
-//                    ivLoadingIndicator.apply {
-//                        stopShimmer()
-//                        makeGone()
-//                    }
-//
-//                    fabFavoriteMovie.makeVisible()
-//                    rvMovies.makeVisible()
-            }
             is HomeViewState.GetMovieData -> {
                 MovieList(state.data.resultsIntent)
             }
-            else -> {
-
+            is HomeViewState.GetMovieDataError -> {
+                ErrorScreen(
+                    stringResource(id = R.string.error_description),
+                    "alien_no_network.json"
+                )
             }
+            is HomeViewState.EmptyScreen -> {
+                ErrorScreen(stringResource(id = R.string.empty_description), "empty_states.json")
+            }
+        }
+    }
+
+    @Composable
+    private fun ErrorScreen(
+        message: String,
+        asset: String
+    ) {
+        val composition by rememberLottieComposition(spec = LottieCompositionSpec.Asset(asset))
+        val progress by animateLottieCompositionAsState(
+            composition = composition,
+            iterations = LottieConstants.IterateForever,
+            isPlaying = true
+        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .fillMaxWidth()
+        ) {
+            LottieAnimation(
+                composition = composition,
+                progress = progress,
+                modifier = Modifier.weight(2f)
+            )
+            Text(
+                text = message,
+                fontWeight = FontWeight.Bold,
+                fontSize = 21.sp,
+                modifier = Modifier.padding(top = 16.dp)
+            )
         }
     }
 
@@ -233,10 +253,12 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
     }
 
     @Composable
-    private fun HomeFloatingButton() {
+    private fun HomeFloatingButton(fabOffsetHeightPx: MutableState<Float>) {
         val state = viewModel.state.collectAsState().value
         if (state !is HomeViewState.ShowLoading) {
-            FloatingActionButton(onClick = {
+            FloatingActionButton(modifier = Modifier.offset {
+                IntOffset(x = 0, y = -fabOffsetHeightPx.value.roundToInt())
+            }, onClick = {
                 FavoriteNavigator
                     .getFavoritePageIntent()
                     .let(::startActivity)
@@ -281,45 +303,6 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
                 }
             },
         )
-    }
-
-    private fun setupObserver() {
-//        viewModel.state.observe(this, Observer { state ->
-//            when (state) {
-//                is HomeViewState.ShowLoading -> {
-//                    ivLoadingIndicator.apply {
-//                        startShimmer()
-//                        makeVisible()
-//                    }
-//
-//                    fabFavoriteMovie.makeGone()
-//                    rvMovies.makeGone()
-//                    layoutEmpty.hideEmptyScreen()
-//                }
-//                is HomeViewState.HideLoading -> {
-//                    ivLoadingIndicator.apply {
-//                        stopShimmer()
-//                        makeGone()
-//                    }
-//
-//                    fabFavoriteMovie.makeVisible()
-//                    rvMovies.makeVisible()
-//                }
-//                is HomeViewState.GetMovieDataError -> {
-//                    layoutError.showErrorScreen()
-//                }
-//                is HomeViewState.GetMovieData -> {
-//                    homeAdapter.safeAddAll(state.data.resultsIntent)
-//                    layoutError.hideErrorScreen()
-//                    layoutEmpty.hideEmptyScreen()
-//                }
-//                is HomeViewState.EmptyScreen -> {
-//                    homeAdapter.clear()
-//                    rvMovies.makeGone()
-//                    layoutEmpty.showEmptyScreen()
-//                }
-//            }
-//        })
     }
 
     @Composable

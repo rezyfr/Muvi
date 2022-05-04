@@ -12,10 +12,10 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 
 
-fun LottieAnimationView.loadAnimation(assetPath: String) {
-    setAnimation(assetPath)
-    playAnimation()
-}
+//fun LottieAnimationView.loadAnimation(assetPath: String) {
+//    setAnimation(assetPath)
+//    playAnimation()
+//}
 
 fun ImageView.loadImage(url: String) {
     Glide.with(context)

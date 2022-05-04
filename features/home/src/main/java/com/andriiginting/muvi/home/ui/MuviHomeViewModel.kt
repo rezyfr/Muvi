@@ -2,7 +2,6 @@ package com.andriiginting.muvi.home.ui
 
 import androidx.lifecycle.viewModelScope
 import com.andriiginting.base_ui.MuviBaseFlowViewModel
-import com.andriiginting.base_ui.MuviBaseViewModel
 import com.andriiginting.core_network.HomeBannerData
 import com.andriiginting.core_network.MovieResponse
 import com.andriiginting.muvi.home.domain.Filter
@@ -49,7 +48,7 @@ class MuviHomeViewModel @Inject constructor(
             .subscribe({ data ->
                 handleDataSuccess(data)
             }, { error ->
-                _state.value = HomeViewState.GetMovieDataError(error)
+                handleError(error)
             }).let(addDisposable::add)
     }
 
@@ -60,7 +59,7 @@ class MuviHomeViewModel @Inject constructor(
                     _bannerState.emit(HomeBannerState.GetHomeBannerData(data))
                 }
             }, {
-                _bannerState.value = HomeBannerState.BannerError
+                viewModelScope.launch { _bannerState.emit(HomeBannerState.BannerError) }
             }).let(addDisposable::add)
     }
 
@@ -71,7 +70,7 @@ class MuviHomeViewModel @Inject constructor(
             .subscribe({ data ->
                 handleDataSuccess(data)
             }, { error ->
-                _state.value = HomeViewState.GetMovieDataError(error)
+                handleError(error)
             }).let(addDisposable::add)
     }
 
@@ -82,7 +81,7 @@ class MuviHomeViewModel @Inject constructor(
             .subscribe({ data ->
                 handleDataSuccess(data)
             }, { error ->
-                _state.value = HomeViewState.GetMovieDataError(error)
+                handleError(error)
             }).let(addDisposable::add)
     }
 
@@ -93,7 +92,7 @@ class MuviHomeViewModel @Inject constructor(
             .subscribe({ data ->
                 handleDataSuccess(data)
             }, { error ->
-                _state.value = HomeViewState.GetMovieDataError(error)
+                handleError(error)
             }).let(addDisposable::add)
     }
 
@@ -104,32 +103,37 @@ class MuviHomeViewModel @Inject constructor(
             .subscribe({ data ->
                 handleDataSuccess(data)
             }, { error ->
-                _state.value = HomeViewState.GetMovieDataError(error)
+                handleError(error)
             }).let(addDisposable::add)
     }
 
+    private fun handleError(error: Throwable) {
+        viewModelScope.launch {
+            _state.emit(HomeViewState.GetMovieDataError(error))
+        }
+    }
+
     private fun handleDataSuccess(data: MovieResponse) {
-        if (data.resultsIntent.isEmpty()) {
-            _state.value = HomeViewState.EmptyScreen
-        } else {
-            viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (data.resultsIntent.isEmpty()) {
+                _state.emit(HomeViewState.EmptyScreen)
+            } else {
                 _state.emit(HomeViewState.GetMovieData(data))
             }
         }
     }
 }
+    sealed class HomeBannerState {
+        object BannerError : HomeBannerState()
+        object BannerEmpty : HomeBannerState()
+        data class GetHomeBannerData(val data: HomeBannerData) : HomeBannerState()
+    }
 
-sealed class HomeBannerState {
-    object BannerError : HomeBannerState()
-    object BannerEmpty : HomeBannerState()
-    data class GetHomeBannerData(val data: HomeBannerData) : HomeBannerState()
-}
+    sealed class HomeViewState {
+        object ShowLoading : HomeViewState()
+        object HideLoading : HomeViewState()
+        object EmptyScreen : HomeViewState()
 
-sealed class HomeViewState {
-    object ShowLoading : HomeViewState()
-    object HideLoading : HomeViewState()
-    object EmptyScreen : HomeViewState()
-
-    data class GetMovieData(val data: MovieResponse) : HomeViewState()
-    data class GetMovieDataError(val error: Throwable) : HomeViewState()
-}
+        data class GetMovieData(val data: MovieResponse) : HomeViewState()
+        data class GetMovieDataError(val error: Throwable) : HomeViewState()
+    }
