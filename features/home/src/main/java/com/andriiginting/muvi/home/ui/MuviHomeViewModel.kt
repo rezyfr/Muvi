@@ -1,6 +1,7 @@
 package com.andriiginting.muvi.home.ui
 
 import androidx.lifecycle.viewModelScope
+import com.andriiginting.base_ui.MuviBaseFlowViewModel
 import com.andriiginting.base_ui.MuviBaseViewModel
 import com.andriiginting.core_network.HomeBannerData
 import com.andriiginting.core_network.MovieResponse
@@ -14,7 +15,7 @@ import javax.inject.Inject
 
 class MuviHomeViewModel @Inject constructor(
     private val useCase: MuviHomeUseCase
-) : MuviBaseViewModel<HomeViewState>() {
+) : MuviBaseFlowViewModel<HomeViewState>() {
 
     private val _bannerState: MutableStateFlow<HomeBannerState> =
         MutableStateFlow(HomeBannerState.BannerEmpty)
@@ -24,6 +25,9 @@ class MuviHomeViewModel @Inject constructor(
     private val _filterState: MutableStateFlow<Filter> = MutableStateFlow(Filter.ALL)
     val filterState: StateFlow<Filter>
         get() = _filterState
+
+    override val initialState: HomeViewState
+        get() = HomeViewState.EmptyScreen
 
     fun setFilterType(filter: Filter?) {
         if (filter != null) {
@@ -108,7 +112,9 @@ class MuviHomeViewModel @Inject constructor(
         if (data.resultsIntent.isEmpty()) {
             _state.value = HomeViewState.EmptyScreen
         } else {
-            _state.postValue(HomeViewState.GetMovieData(data))
+            viewModelScope.launch(Dispatchers.IO) {
+                _state.emit(HomeViewState.GetMovieData(data))
+            }
         }
     }
 }

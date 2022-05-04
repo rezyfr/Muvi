@@ -1,16 +1,13 @@
 package com.andriiginting.muvi.home.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
@@ -23,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import coil.compose.rememberImagePainter
 import com.andriiginting.base_ui.MuviBaseActivity
@@ -39,8 +35,6 @@ import com.andriiginting.navigation.DetailNavigator
 import com.andriiginting.navigation.FavoriteNavigator
 import com.andriiginting.navigation.SearchNavigator
 import com.andriiginting.uttils.BuildConfig
-import com.andriiginting.uttils.makeGone
-import com.andriiginting.uttils.makeVisible
 import com.andriiginting.uttils.setGridView
 import kotlinx.android.synthetic.main.activity_home.*
 
@@ -79,15 +73,18 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
         }
         compose_view.apply {
             setContent {
-                Surface(modifier = Modifier.padding(horizontal = 8.dp)) {
+                Scaffold(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    floatingActionButton = { HomeFloatingButton() }) {
                     Column() {
                         SearchBar()
                         HomeBanner()
                         HomeFilter(
                             selectedFilter = viewModel.filterState.collectAsState().value
-                        ){
+                        ) {
                             viewModel.setFilterType(getFilter(it))
                         }
+                        HomeContent()
                     }
                 }
             }
@@ -95,20 +92,11 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
     }
 
     private fun setupFavoriteButton() {
-        fabFavoriteMovie.apply {
-            setOnClickListener {
-                FavoriteNavigator
-                    .getFavoritePageIntent()
-                    .let(::startActivity)
-            }
-            bringToFront()
-        }
-
         rvMovies.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (dy > 0 || dy < 0) {
-                    fabFavoriteMovie.hide()
+//                    fabFavoriteMovie.hide()
                 }
             }
 
@@ -116,7 +104,7 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
                 super.onScrollStateChanged(recyclerView, newState)
 
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    fabFavoriteMovie.show()
+//                    fabFavoriteMovie.show()
                 }
             }
         })
@@ -208,43 +196,130 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
         }
     }
 
-    private fun setupObserver() {
-        viewModel.state.observe(this, Observer { state ->
-            when (state) {
-                is HomeViewState.ShowLoading -> {
-                    ivLoadingIndicator.apply {
-                        startShimmer()
-                        makeVisible()
-                    }
+    @Composable
+    private fun HomeContent() {
+        val state = viewModel.state.collectAsState().value
+        when (state) {
+            is HomeViewState.ShowLoading -> {
+                HomeShimmer()
+            }
+            is HomeViewState.HideLoading -> {
+//                    ivLoadingIndicator.apply {
+//                        stopShimmer()
+//                        makeGone()
+//                    }
+//
+//                    fabFavoriteMovie.makeVisible()
+//                    rvMovies.makeVisible()
+            }
+            is HomeViewState.GetMovieData -> {
+                MovieList(state.data.resultsIntent)
+            }
+            else -> {
 
-                    fabFavoriteMovie.makeGone()
-                    rvMovies.makeGone()
-                    layoutEmpty.hideEmptyScreen()
-                }
-                is HomeViewState.HideLoading -> {
-                    ivLoadingIndicator.apply {
-                        stopShimmer()
-                        makeGone()
-                    }
+            }
+        }
+    }
 
-                    fabFavoriteMovie.makeVisible()
-                    rvMovies.makeVisible()
-                }
-                is HomeViewState.GetMovieDataError -> {
-                    layoutError.showErrorScreen()
-                }
-                is HomeViewState.GetMovieData -> {
-                    homeAdapter.safeAddAll(state.data.resultsIntent)
-                    layoutError.hideErrorScreen()
-                    layoutEmpty.hideEmptyScreen()
-                }
-                is HomeViewState.EmptyScreen -> {
-                    homeAdapter.clear()
-                    rvMovies.makeGone()
-                    layoutEmpty.showEmptyScreen()
+    @Composable
+    private fun HomeShimmer() {
+        LazyColumn {
+            repeat(3) {
+                item {
+                    ShimmerAnimation()
                 }
             }
-        })
+        }
+    }
+
+    @Composable
+    private fun HomeFloatingButton() {
+        val state = viewModel.state.collectAsState().value
+        if (state !is HomeViewState.ShowLoading) {
+            FloatingActionButton(onClick = {
+                FavoriteNavigator
+                    .getFavoritePageIntent()
+                    .let(::startActivity)
+            }) {
+                Image(
+                    painter = rememberImagePainter(
+                        ContextCompat.getDrawable(
+                            this@HomeActivity,
+                            R.drawable.ic_baseline_favorite_24
+                        )
+                    ), contentDescription = null, modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+    @Composable
+    private fun MovieList(movies: List<MovieItem>) {
+        LazyVerticalGrid(
+            cells = GridCells.Fixed(HOME_COLUMN_SIZE),
+            contentPadding = PaddingValues(8.dp),
+            content = {
+                items(movies) { movie ->
+                    Card(
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = 2.dp,
+                        modifier = Modifier.padding(8.dp),
+                        onClick = {
+                            DetailNavigator
+                                .getDetailPageIntent(movie.id)
+                                .also(::startActivity)
+                        }
+                    ) {
+                        Image(
+                            painter = rememberImagePainter(data = BuildConfig.IMAGE_BASE_URL + movie.posterPath),
+                            contentDescription = null,
+                            modifier = Modifier.height(250.dp),
+                            contentScale = ContentScale.Crop,
+                        )
+                    }
+                }
+            },
+        )
+    }
+
+    private fun setupObserver() {
+//        viewModel.state.observe(this, Observer { state ->
+//            when (state) {
+//                is HomeViewState.ShowLoading -> {
+//                    ivLoadingIndicator.apply {
+//                        startShimmer()
+//                        makeVisible()
+//                    }
+//
+//                    fabFavoriteMovie.makeGone()
+//                    rvMovies.makeGone()
+//                    layoutEmpty.hideEmptyScreen()
+//                }
+//                is HomeViewState.HideLoading -> {
+//                    ivLoadingIndicator.apply {
+//                        stopShimmer()
+//                        makeGone()
+//                    }
+//
+//                    fabFavoriteMovie.makeVisible()
+//                    rvMovies.makeVisible()
+//                }
+//                is HomeViewState.GetMovieDataError -> {
+//                    layoutError.showErrorScreen()
+//                }
+//                is HomeViewState.GetMovieData -> {
+//                    homeAdapter.safeAddAll(state.data.resultsIntent)
+//                    layoutError.hideErrorScreen()
+//                    layoutEmpty.hideEmptyScreen()
+//                }
+//                is HomeViewState.EmptyScreen -> {
+//                    homeAdapter.clear()
+//                    rvMovies.makeGone()
+//                    layoutEmpty.showEmptyScreen()
+//                }
+//            }
+//        })
     }
 
     @Composable
