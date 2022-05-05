@@ -29,8 +29,18 @@ ext {
     /** Jetpack Compose */
     composeVersion = "1.0.5"
     stethoVersion = "1.5.1"
+    hiltVersion = "2.40.5"
 
     libraries = [
+            composeActivity          : "androidx.activity:activity-compose:1.4.0",
+            composeMaterial          : "androidx.compose.material:material:${composeVersion}",
+            composeAnimation         : "androidx.compose.animation:animation:${composeVersion}",
+            composeUiTooling         : "androidx.compose.ui:ui-tooling:${composeVersion}",
+            hiltAndroid              : "com.google.dagger:hilt-android:${hiltVersion}",
+            hiltNavCompose           : "androidx.hilt:hilt-navigation-compose:1.0.0",
+            hiltCompiler             : "com.google.dagger:hilt-compiler:${hiltVersion}",
+            hiltTesting              : "com.google.dagger:hilt-android-testing:${hiltVersion}",
+            hiltDaggerCompiler       : "com.google.dagger:hilt-compiler:${hiltVersion}",
             dagger                   : "com.google.dagger:dagger:${daggerVersion}",
             daggerCompiler           : "com.google.dagger:dagger-compiler:${daggerVersion}",
             daggerAndroid            : "com.google.dagger:dagger-android:${daggerVersion}",
@@ -51,12 +61,7 @@ ext {
             glideOkHttp3             : "com.github.bumptech.glide:okhttp3-integration:1.5.0",
             javaxInject              : "javax.inject:javax.inject:1",
             multidex                 : "androidx.multidex:multidex:2.0.1",
-            compose                  : "androidx.compose.ui:ui:${composeVersion}",
-            composeCompiler           : "androidx.compose.compiler:compiler:1.1.0-beta03",
-            composeRuntime           : "androidx.compose.runtime:runtime:1.1.0-beta03",
-            composeMaterial          : "androidx.compose.material:material:${composeVersion}",
-            composeUiTooling         : "androidx.compose.ui:ui-tooling-preview:${composeVersion}",
-            composeTest              : "androidx.compose.ui:ui-test-junit4:${composeVersion}",
+            lifecycleCompose         : "androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1",
             lifecycleRuntime         : "androidx.lifecycle:lifecycle-runtime:${lifecycleVersion}",
             lifecycleExtentions      : "androidx.lifecycle:lifecycle-extensions:${lifecycleVersion}",
             lifecycleCompiler        : "androidx.lifecycle:lifecycle-compiler:${lifecycleVersion}",
@@ -71,6 +76,7 @@ ext {
             roomRxJava               : "androidx.room:room-rxjava2:${roomVersion}",
             kotlinCore               : "androidx.core:core-ktx:${androidCoreVersion}",
             lottie                   : "com.airbnb.android:lottie:${lottieVersion}",
+            lottieCompose            : "com.airbnb.android:lottie-compose:5.0.3",
             deeplinkDispatch         : "com.airbnb:deeplinkdispatch:${deeplinkDispatchVersion}",
             deeplinkDispatchProcessor: "com.airbnb:deeplinkdispatch-processor:${deeplinkDispatchVersion}",
             stetho                   : "com.facebook.stetho:stetho:$stethoVersion",

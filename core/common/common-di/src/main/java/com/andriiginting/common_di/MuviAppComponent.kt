@@ -6,6 +6,7 @@ import com.andriiginting.common_database.MuviDatabaseModule
 import com.andriiginting.core_network.MuviNetworkModule
 import dagger.BindsInstance
 import dagger.Component
+import dagger.hilt.migration.DisableInstallInCheck
 import javax.inject.Singleton
 
 @Singleton
@@ -15,6 +16,7 @@ import javax.inject.Singleton
         MuviDatabaseModule::class
     ]
 )
+@DisableInstallInCheck
 interface MuviAppComponent : MuviAppDeps {
 
     fun inject(application: Application)

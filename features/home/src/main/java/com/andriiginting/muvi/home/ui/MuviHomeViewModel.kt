@@ -6,12 +6,14 @@ import com.andriiginting.core_network.HomeBannerData
 import com.andriiginting.core_network.MovieResponse
 import com.andriiginting.muvi.home.domain.Filter
 import com.andriiginting.muvi.home.domain.MuviHomeUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class MuviHomeViewModel @Inject constructor(
     private val useCase: MuviHomeUseCase
 ) : MuviBaseFlowViewModel<HomeViewState>() {

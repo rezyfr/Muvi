@@ -9,9 +9,11 @@ import com.andriiginting.search.domain.MuviSearchUseCaseImpl
 import com.andriiginting.search.ui.MuviSearchViewModel
 import dagger.Binds
 import dagger.Module
+import dagger.hilt.migration.DisableInstallInCheck
 import dagger.multibindings.IntoMap
 
 @Module
+@DisableInstallInCheck
 abstract class MuviSearchModule {
 
     @Binds

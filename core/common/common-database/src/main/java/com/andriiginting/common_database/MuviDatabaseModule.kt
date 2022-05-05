@@ -5,11 +5,13 @@ import androidx.room.Room
 import com.andriiginting.common_database.Constants.FAVORITE_DATABASE_NAME
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.migration.DisableInstallInCheck
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SupportFactory
 import javax.inject.Singleton
 
 @Module
+@DisableInstallInCheck
 class MuviDatabaseModule {
 
     @Provides

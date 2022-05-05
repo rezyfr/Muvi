@@ -6,8 +6,9 @@ import com.andriiginting.common_di.DaggerMuviAppComponent
 import com.andriiginting.common_di.MuviAppComponent
 import com.andriiginting.common_di.MuviDepsProvider
 import com.andriiginting.core_network.MuviNetworkModule
-import com.facebook.stetho.Stetho
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 open class App : MultiDexApplication(), MuviDepsProvider {
 
     open lateinit var appComponent: MuviAppComponent

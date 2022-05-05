@@ -1,27 +1,28 @@
 package com.andriiginting.muvi.home.di
 
-import androidx.lifecycle.ViewModel
-import com.andriiginting.common_di.ViewModelKey
+import com.andriiginting.core_network.MuviHomeService
 import com.andriiginting.muvi.home.data.MuviHomeRepository
 import com.andriiginting.muvi.home.data.MuviHomeRepositoryImpl
 import com.andriiginting.muvi.home.domain.MuviHomeUseCase
 import com.andriiginting.muvi.home.domain.MuviHomeUseCaseImpl
-import com.andriiginting.muvi.home.ui.MuviHomeViewModel
-import dagger.Binds
 import dagger.Module
-import dagger.multibindings.IntoMap
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-abstract class MuviHomeModule {
+@InstallIn(ViewModelComponent::class)
+class MuviHomeModule {
 
-    @Binds
-    abstract fun provideRepository(binds: MuviHomeRepositoryImpl): MuviHomeRepository
+    @Provides
+    fun provideRepository(service: MuviHomeService): MuviHomeRepository{
+        return MuviHomeRepositoryImpl(service)
+    }
 
-    @Binds
-    abstract fun provideUseCase(binds: MuviHomeUseCaseImpl): MuviHomeUseCase
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(MuviHomeViewModel::class)
-    abstract fun provideViewModel(binds: MuviHomeViewModel): ViewModel
+    @Provides
+    @ViewModelScoped
+    fun provideUseCase(repository: MuviHomeRepository): MuviHomeUseCase {
+        return MuviHomeUseCaseImpl(repository)
+    }
 }

@@ -9,9 +9,11 @@ import com.andriiginting.favorite.domain.MuviFavoriteUseCaseImpl
 import com.andriiginting.favorite.presentation.MuviFavoriteViewModel
 import dagger.Binds
 import dagger.Module
+import dagger.hilt.migration.DisableInstallInCheck
 import dagger.multibindings.IntoMap
 
 @Module
+@DisableInstallInCheck
 abstract class MuviFavoriteModule {
 
     @Binds

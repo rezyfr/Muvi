@@ -14,9 +14,11 @@ import com.andriiginting.muvi.detail.presentation.MuviDetailViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.migration.DisableInstallInCheck
 import dagger.multibindings.IntoMap
 
 @Module
+@DisableInstallInCheck
 abstract class MuviDetailModule {
     @Binds
     abstract fun provideRepository(binds: MuviDetailRepositoryImpl): MuviDetailRepository

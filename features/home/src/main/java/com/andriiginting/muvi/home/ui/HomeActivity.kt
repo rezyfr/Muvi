@@ -1,15 +1,17 @@
 package com.andriiginting.muvi.home.ui
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import android.os.Bundle
+import android.os.PersistableBundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -25,15 +27,13 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
-import androidx.recyclerview.widget.RecyclerView
 import coil.compose.rememberImagePainter
 import com.airbnb.lottie.compose.*
 import com.andriiginting.base_ui.MuviBaseActivity
-import com.andriiginting.base_ui.MuviBaseAdapter
+import com.andriiginting.base_ui.MuviBaseComposeActivity
+import com.andriiginting.common_widget.ErrorScreen
 import com.andriiginting.core_network.MovieItem
 import com.andriiginting.muvi.home.R
-import com.andriiginting.muvi.home.di.MuviHomeInjector
 import com.andriiginting.muvi.home.domain.Filter
 import com.andriiginting.muvi.home.domain.getAllFilters
 import com.andriiginting.muvi.home.domain.getFilter
@@ -42,13 +42,21 @@ import com.andriiginting.navigation.DetailNavigator
 import com.andriiginting.navigation.FavoriteNavigator
 import com.andriiginting.navigation.SearchNavigator
 import com.andriiginting.uttils.BuildConfig
-import com.andriiginting.uttils.setGridView
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlin.math.roundToInt
 
 private const val HOME_COLUMN_SIZE = 2
 
-class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
+@AndroidEntryPoint
+class HomeActivity : MuviBaseComposeActivity() {
+
+    private val viewModel by viewModels<MuviHomeViewModel>()
+
+    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        super.onCreate(savedInstanceState, persistentState)
+        setUpHome()
+    }
 
     override fun getLayoutId(): Int = R.layout.activity_home
 
@@ -56,13 +64,9 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
         setUpHome()
     }
 
-    override fun setData() = viewModel.getMovieData()
-
-    override fun setupInjector() = MuviHomeInjector.of(this)
-
-    override fun setViewModel(): Class<MuviHomeViewModel> = MuviHomeViewModel::class.java
-
-    override fun setObserver(): FragmentActivity = this
+    override fun setData() {
+        viewModel.getMovieData()
+    }
 
     override fun onResume() {
         super.onResume()
@@ -146,7 +150,7 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
                         }
                         Text(
                             state.data.movie.title,
-                            color = Color.White,
+                            color = androidx.compose.ui.graphics.Color.White,
                             style = TextStyle(fontWeight = FontWeight.Bold),
                             modifier = Modifier
                                 .background(Color(0x37000000))
@@ -206,38 +210,6 @@ class HomeActivity : MuviBaseActivity<MuviHomeViewModel>() {
             is HomeViewState.EmptyScreen -> {
                 ErrorScreen(stringResource(id = R.string.empty_description), "empty_states.json")
             }
-        }
-    }
-
-    @Composable
-    private fun ErrorScreen(
-        message: String,
-        asset: String
-    ) {
-        val composition by rememberLottieComposition(spec = LottieCompositionSpec.Asset(asset))
-        val progress by animateLottieCompositionAsState(
-            composition = composition,
-            iterations = LottieConstants.IterateForever,
-            isPlaying = true
-        )
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .fillMaxWidth()
-        ) {
-            LottieAnimation(
-                composition = composition,
-                progress = progress,
-                modifier = Modifier.weight(2f)
-            )
-            Text(
-                text = message,
-                fontWeight = FontWeight.Bold,
-                fontSize = 21.sp,
-                modifier = Modifier.padding(top = 16.dp)
-            )
         }
     }
 

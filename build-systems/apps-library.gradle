@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'dagger.hilt.android.plugin'
 
 android {
     compileSdkVersion 31
@@ -52,26 +53,25 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion '1.1.0-beta03'
     }
+    kapt {
+        correctErrorTypes true
+    }
 }
 
 apply from: "$rootDir/build-systems/muvi-unit-test-config.gradle"
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
-    // Integration with activities
-    implementation 'androidx.activity:activity-compose:1.4.0'
-    // Compose Material Design
-    implementation 'androidx.compose.material:material:1.1.1'
-    // Animations
-    implementation 'androidx.compose.animation:animation:1.1.1'
-    // Tooling support (Previews, etc.)
-    implementation 'androidx.compose.ui:ui-tooling:1.1.1'
-    // Integration with ViewModels
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1'
-    implementation 'com.airbnb.android:lottie-compose:5.0.3'
 
+
+    api libraries.hiltAndroid
+    kapt libraries.hiltCompiler
+    api libraries.composeActivity
+    api libraries.composeMaterial
+    implementation libraries.lifecycleCompose
+    implementation libraries.lottieCompose
+    api "io.coil-kt:coil-compose:1.4.0"
     // UI Tests
-    implementation("io.coil-kt:coil-compose:1.4.0")
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.1.1'
     implementation libraries.multidex
 }

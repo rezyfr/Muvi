@@ -2,6 +2,13 @@ package com.andriiginting.muvi.detail
 
 import android.os.Bundle
 import android.widget.Toast
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Scaffold
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import com.airbnb.deeplinkdispatch.DeepLink
@@ -28,6 +35,7 @@ class MuviDetailActivity : MuviBaseActivity<MuviDetailViewModel>() {
     override fun getLayoutId(): Int = R.layout.activity_muvi_detail
 
     override fun setupView() {
+        setupComposeView()
         if (intent.getBooleanExtra(DeepLink.IS_DEEP_LINK, false)) {
             val params: Bundle? = intent.extras
             movieId = params?.getString(MOVIE_ID_PARAMS).toString()
@@ -38,6 +46,38 @@ class MuviDetailActivity : MuviBaseActivity<MuviDetailViewModel>() {
         }
         viewModel.checkFavoriteMovie(movieId)
         setUpObserver()
+    }
+
+    private fun setupComposeView() {
+        compose_view.apply {
+            setContent {
+                Scaffold(modifier = Modifier.padding(8.dp)) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().height(200.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            IconButton(onClick = {
+                                onBackPressed() }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_back_arrow_back_24),
+                                    null
+                                )
+                            }
+                            IconButton(onClick = {
+                                favoriteClickListener(isFavorite) }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.favorite_icon_selector),
+                                    null
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun setData() {

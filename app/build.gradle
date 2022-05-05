@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply from: "$rootDir/build-systems/muvi-unit-test-config.gradle"
+apply plugin: 'dagger.hilt.android.plugin'
 
 android {
     compileSdkVersion 31
@@ -67,6 +68,8 @@ dependencies {
     implementation project(":search")
     implementation libraries.dagger
     kapt libraries.daggerCompiler
+    implementation libraries.hiltAndroid
+    kapt libraries.hiltCompiler
     implementation libraries.lottie
     implementation libraries.stetho
 

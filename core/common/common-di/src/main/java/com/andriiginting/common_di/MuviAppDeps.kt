@@ -6,7 +6,6 @@ import com.andriiginting.core_network.MuviHomeService
 import com.andriiginting.core_network.MuviSearchService
 
 interface MuviAppDeps {
-    fun muviHomeService(): MuviHomeService
     fun muviDetailService(): MuviDetailService
     fun muviSearchService(): MuviSearchService
     fun dbService(): MuviDatabase

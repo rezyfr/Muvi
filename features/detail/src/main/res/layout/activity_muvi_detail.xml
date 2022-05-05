@@ -4,8 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/detailContainer"
     android:layout_width="match_parent"
-    android:fitsSystemWindows="true"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/compose_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/ivPosterBackdrop"
@@ -15,7 +23,7 @@
         android:contentDescription="@string/image_backdrop_detail"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/compose_view"
         tools:ignore="PrivateResource" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -23,10 +31,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:visibility="gone"
         android:contentDescription="@string/image_backdrop_detail"
         android:padding="8dp"
         android:src="@drawable/ic_back_arrow_back_24"
+        android:visibility="gone"
         app:fabSize="mini"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

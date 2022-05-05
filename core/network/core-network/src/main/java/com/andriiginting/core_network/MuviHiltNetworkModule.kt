@@ -4,7 +4,8 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.migration.DisableInstallInCheck
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import okhttp3.CertificatePinner
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -18,8 +19,8 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
-@DisableInstallInCheck
-class MuviNetworkModule(private val networkUrl: String) {
+@InstallIn(SingletonComponent::class)
+object MuviHiltNetworkModule {
 
     @Provides
     @Singleton
@@ -29,7 +30,13 @@ class MuviNetworkModule(private val networkUrl: String) {
     @Singleton
     @Named("MuviHomeService")
     fun providesRetrofit(@Named("MuviHttpCliet") okHttpClient: OkHttpClient): Retrofit {
-        return retrofitFactory(okHttpClient, networkUrl)
+        return retrofitFactory(okHttpClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideHomeServices(@Named("MuviHomeService") retrofit: Retrofit): MuviHomeService {
+        return retrofit.create(MuviHomeService::class.java)
     }
 
     @Provides
@@ -49,12 +56,12 @@ class MuviNetworkModule(private val networkUrl: String) {
     @Named("MuviHttpCliet")
     fun provideHttpClient(): OkHttpClient = okHttpClientFactory()
 
-    private fun retrofitFactory(okHttpClient: OkHttpClient, baseUrl: String): Retrofit {
+    private fun retrofitFactory(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(okHttpClient)
-            .baseUrl(baseUrl)
+            .baseUrl(BuildConfig.HOST_BASE_URL)
             .build()
     }
 
