@@ -1,36 +1,42 @@
 package com.andriiginting.muvi.detail.di
 
-import androidx.lifecycle.ViewModel
 import com.andriiginting.common_database.MuviDatabase
-import com.andriiginting.common_database.MuviFavoriteDAO
-import com.andriiginting.common_di.ViewModelKey
+import com.andriiginting.core_network.MuviDetailService
 import com.andriiginting.muvi.detail.data.MuviDetailRepository
 import com.andriiginting.muvi.detail.data.MuviDetailRepositoryImpl
 import com.andriiginting.muvi.detail.domain.MuviDetailMapper
 import com.andriiginting.muvi.detail.domain.MuviDetailMapperImpl
 import com.andriiginting.muvi.detail.domain.MuviDetailUseCase
 import com.andriiginting.muvi.detail.domain.MuviDetailUseCaseImpl
-import com.andriiginting.muvi.detail.presentation.MuviDetailViewModel
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.migration.DisableInstallInCheck
-import dagger.multibindings.IntoMap
 
 @Module
-@DisableInstallInCheck
-abstract class MuviDetailModule {
-    @Binds
-    abstract fun provideRepository(binds: MuviDetailRepositoryImpl): MuviDetailRepository
+@InstallIn(ViewModelComponent::class)
+class MuviDetailModule {
+    @Provides
+    fun provideRepository(
+        service: MuviDetailService,
+        database: MuviDatabase
+    ): MuviDetailRepository {
+        return MuviDetailRepositoryImpl(service, database)
+    }
 
-    @Binds
-    abstract fun provideMapper(binds: MuviDetailMapperImpl): MuviDetailMapper
+    @Provides
+    fun provideMapper(): MuviDetailMapper {
+        return MuviDetailMapperImpl()
+    }
 
-    @Binds
-    abstract fun provideUseCase(binds: MuviDetailUseCaseImpl): MuviDetailUseCase
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(MuviDetailViewModel::class)
-    abstract fun provideViewModel(binds: MuviDetailViewModel): ViewModel
+    @Provides
+    @ViewModelScoped
+    fun provideUseCase(
+        repository: MuviDetailRepository,
+        mapper: MuviDetailMapper
+    ): MuviDetailUseCase {
+        return MuviDetailUseCaseImpl(repository, mapper)
+    }
 }

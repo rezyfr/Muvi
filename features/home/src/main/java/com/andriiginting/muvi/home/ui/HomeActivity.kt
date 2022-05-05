@@ -2,11 +2,12 @@ package com.andriiginting.muvi.home.ui
 
 import android.os.Bundle
 import android.os.PersistableBundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,8 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import coil.compose.rememberImagePainter
-import com.airbnb.lottie.compose.*
-import com.andriiginting.base_ui.MuviBaseActivity
 import com.andriiginting.base_ui.MuviBaseComposeActivity
 import com.andriiginting.common_widget.ErrorScreen
 import com.andriiginting.core_network.MovieItem
@@ -53,11 +52,6 @@ class HomeActivity : MuviBaseComposeActivity() {
 
     private val viewModel by viewModels<MuviHomeViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
-        setUpHome()
-    }
-
     override fun getLayoutId(): Int = R.layout.activity_home
 
     override fun setupView() {
@@ -65,55 +59,49 @@ class HomeActivity : MuviBaseComposeActivity() {
     }
 
     override fun setData() {
+        viewModel.getHomeBanner()
         viewModel.getMovieData()
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.getHomeBanner()
-    }
-
     private fun setUpHome() {
-        compose_view.apply {
-            setContent {
-                val fabHeight = 72.dp
-                val fabHeightPx = with(
-                    LocalDensity.current
-                ) {
-                    fabHeight.roundToPx().toFloat()
-                }
-                val fabOffsetHeightPx = remember { mutableStateOf(0f) }
+        compose_view.setContent {
+            val fabHeight = 72.dp
+            val fabHeightPx = with(
+                LocalDensity.current
+            ) {
+                fabHeight.roundToPx().toFloat()
+            }
+            val fabOffsetHeightPx = remember { mutableStateOf(0f) }
 
-                val nestedScrollConnection = remember {
-                    object : NestedScrollConnection {
-                        override fun onPreScroll(
-                            available: Offset,
-                            source: NestedScrollSource
-                        ): Offset {
+            val nestedScrollConnection = remember {
+                object : NestedScrollConnection {
+                    override fun onPreScroll(
+                        available: Offset,
+                        source: NestedScrollSource
+                    ): Offset {
 
-                            val delta = available.y
-                            val newOffset = fabOffsetHeightPx.value + delta
-                            fabOffsetHeightPx.value = newOffset.coerceIn(-fabHeightPx, 0f)
+                        val delta = available.y
+                        val newOffset = fabOffsetHeightPx.value + delta
+                        fabOffsetHeightPx.value = newOffset.coerceIn(-fabHeightPx, 0f)
 
-                            return Offset.Zero
-                        }
+                        return Offset.Zero
                     }
                 }
-                Scaffold(
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .nestedScroll(nestedScrollConnection),
-                    floatingActionButton = { HomeFloatingButton(fabOffsetHeightPx) }) {
-                    Column() {
-                        SearchBar()
-                        HomeBanner()
-                        HomeFilter(
-                            selectedFilter = viewModel.filterState.collectAsState().value
-                        ) {
-                            viewModel.setFilterType(getFilter(it))
-                        }
-                        HomeContent()
+            }
+            Scaffold(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .nestedScroll(nestedScrollConnection),
+                floatingActionButton = { HomeFloatingButton(fabOffsetHeightPx) }) {
+                Column() {
+                    SearchBar()
+                    HomeBanner()
+                    HomeFilter(
+                        selectedFilter = viewModel.filterState.collectAsState().value
+                    ) {
+                        viewModel.setFilterType(getFilter(it))
                     }
+                    HomeContent()
                 }
             }
         }
@@ -150,7 +138,7 @@ class HomeActivity : MuviBaseComposeActivity() {
                         }
                         Text(
                             state.data.movie.title,
-                            color = androidx.compose.ui.graphics.Color.White,
+                            color = Color.White,
                             style = TextStyle(fontWeight = FontWeight.Bold),
                             modifier = Modifier
                                 .background(Color(0x37000000))
