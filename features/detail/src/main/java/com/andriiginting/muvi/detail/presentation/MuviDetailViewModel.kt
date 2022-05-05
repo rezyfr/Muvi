@@ -31,6 +31,10 @@ class MuviDetailViewModel @Inject constructor(
     val haveSimilarMovie: State<List<MovieItem>>
         get() = _haveSimilarMovie
 
+    private val _favoritedMovie: MutableState<Boolean> = mutableStateOf(false)
+    val favoritedMovie: State<Boolean>
+        get() = _favoritedMovie
+
     fun getDetailMovie(movieId: String) {
         useCase.getDetailMovies(movieId)
             .doOnSubscribe { showLoading() }
@@ -50,40 +54,38 @@ class MuviDetailViewModel @Inject constructor(
     }
 
     fun storeFavoriteMovie(movieItem: MovieItem) {
-        showLoading()
         useCase.storeToDatabase(movieItem)
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                _state.value = MovieDetailViewState.StoredFavoriteMovie
+                _favoritedMovie.value = true
             }, { error ->
                 Timber.e(error, "failed to store favorite movie")
-                _state.value = MovieDetailViewState.FailedStoreFavoriteMovie
             })
             .let(addDisposable::add)
     }
 
     fun removeFavoriteMovie(movieId: String) {
         useCase.removeFromDatabase(movieId)
-            .doOnSubscribe { showLoading() }
             .subscribe({
-                _state.value = MovieDetailViewState.RemovedFavoriteMovie
+                _favoritedMovie.value = false
             }, { error ->
                 Timber.e(error, "failed to remove favorite movie")
-                _state.value = MovieDetailViewState.FailedRemoveFavoriteMovie
             })
             .let(addDisposable::add)
     }
 
     fun checkFavoriteMovie(movieId: String) {
         useCase.checkFavoriteMovie(movieId)
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe { Timber.d("check favorite") }
             .subscribe({ data ->
                 if (data != null) {
-                    _state.value = MovieDetailViewState.FavoriteMovie(true)
+                    _favoritedMovie.value = true
                 }
             }, { error ->
-                Timber.e(error, "failed to remove favorite movie")
-                _state.value = MovieDetailViewState.FavoriteMovie(false)
+                _favoritedMovie.value = false
             })
             .let(addDisposable::add)
     }
