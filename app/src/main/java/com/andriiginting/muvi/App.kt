@@ -1,7 +1,6 @@
 package com.andriiginting.muvi
 
 import androidx.multidex.MultiDexApplication
-import com.andriiginting.common_database.MuviDatabaseModule
 import com.andriiginting.common_di.DaggerMuviAppComponent
 import com.andriiginting.common_di.MuviAppComponent
 import com.andriiginting.common_di.MuviDepsProvider
@@ -26,6 +25,5 @@ open class App : MultiDexApplication(), MuviDepsProvider {
         .application(this)
         .context(this.applicationContext)
         .networkModule(MuviNetworkModule(BuildConfig.HOST_BASE_URL))
-        .databaseModule(MuviDatabaseModule())
         .build()
 }

@@ -6,6 +6,8 @@ dependencies {
     implementation project(":core-network")
     implementation project(":common-database")
 
+    implementation libraries.hiltAndroid
+    kapt libraries.hiltCompiler
     implementation libraries.dagger
     implementation libraries.retrofit2
     implementation libraries.lifecycleExtentions

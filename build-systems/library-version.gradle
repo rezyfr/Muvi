@@ -74,6 +74,7 @@ ext {
             roomRuntime              : "androidx.room:room-runtime:${roomVersion}",
             roomCompiler             : "androidx.room:room-compiler:${roomVersion}",
             roomRxJava               : "androidx.room:room-rxjava2:${roomVersion}",
+            roomKtx                  : "androidx.room:room-ktx:${roomVersion}",
             kotlinCore               : "androidx.core:core-ktx:${androidCoreVersion}",
             lottie                   : "com.airbnb.android:lottie:${lottieVersion}",
             lottieCompose            : "com.airbnb.android:lottie-compose:5.0.3",

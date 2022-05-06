@@ -6,6 +6,7 @@ dependencies {
     implementation libraries.dagger
     implementation libraries.roomRuntime
     implementation libraries.roomRxJava
+    implementation libraries.roomKtx
     implementation libraries.sqlChiper
     implementation libraries.sqlKTX
     implementation libraries.lifecycleExtentions

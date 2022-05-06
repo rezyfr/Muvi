@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 interface MuviDetailMapper {
     fun mapToMuviFavorite(data: MovieItem): MuviFavorites
-    fun mapToMovieItem(data: MuviFavorites): MovieItem
+    fun mapToMovieItem(data: MuviFavorites?): MovieItem
 }
 
 class MuviDetailMapperImpl @Inject constructor() : MuviDetailMapper {
@@ -21,15 +21,15 @@ class MuviDetailMapperImpl @Inject constructor() : MuviDetailMapper {
         )
     }
 
-    override fun mapToMovieItem(data: MuviFavorites): MovieItem {
+    override fun mapToMovieItem(data: MuviFavorites?): MovieItem {
         return MovieItem(
-            id = data.movieFavoriteId,
-            movieId = data.movieFavoriteId,
-            posterPath = data.posterPath,
-            overview = data.overview,
-            title = data.movieTitle,
-            backdropPath = data.backdropPath,
-            releaseDate = data.releaseDate
+            id = data?.movieFavoriteId.orEmpty(),
+            movieId = data?.movieFavoriteId.orEmpty(),
+            posterPath = data?.posterPath.orEmpty(),
+            overview = data?.overview.orEmpty(),
+            title = data?.movieTitle.orEmpty(),
+            backdropPath = data?.backdropPath.orEmpty(),
+            releaseDate = data?.releaseDate.orEmpty()
         )
     }
 

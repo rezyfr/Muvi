@@ -9,6 +9,7 @@ import com.andriiginting.common_database.Constants.FILTER_FAVORITE_MOVIE_WITH_ID
 import com.andriiginting.common_database.Constants.GET_ALL_FAVORITE_MOVIE
 import io.reactivex.Flowable
 import io.reactivex.Maybe
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MuviFavoriteDAO {
@@ -19,8 +20,8 @@ interface MuviFavoriteDAO {
     fun insertFavoriteMovie(data: MuviFavorites): Long
 
     @Query(FILTER_FAVORITE_MOVIE_WITH_ID)
-    fun isFavorite(movieId: Int): Maybe<MuviFavorites>
+    fun isFavorite(movieId: Int): Flow<MuviFavorites?>
 
     @Query(DELETE_FAVORITE_MOVIE_WITH_ID)
-    fun deleteMovie(movieId: String)
+    fun deleteMovie(movieId: String): Long
 }

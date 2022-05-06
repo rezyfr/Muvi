@@ -1,29 +1,28 @@
 package com.andriiginting.favorite.di
 
-import androidx.lifecycle.ViewModel
-import com.andriiginting.common_di.ViewModelKey
+import com.andriiginting.common_database.MuviDatabase
 import com.andriiginting.favorite.data.MuviFavoriteRepository
 import com.andriiginting.favorite.data.MuviFavoriteRepositoryImpl
 import com.andriiginting.favorite.domain.MuviFavoriteUseCase
 import com.andriiginting.favorite.domain.MuviFavoriteUseCaseImpl
-import com.andriiginting.favorite.presentation.MuviFavoriteViewModel
-import dagger.Binds
 import dagger.Module
-import dagger.hilt.migration.DisableInstallInCheck
-import dagger.multibindings.IntoMap
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@DisableInstallInCheck
-abstract class MuviFavoriteModule {
+@InstallIn(ViewModelComponent::class)
+class MuviFavoriteModule {
 
-    @Binds
-    abstract fun provideRepository(repository: MuviFavoriteRepositoryImpl): MuviFavoriteRepository
+    @Provides
+    fun provideRepository(db: MuviDatabase): MuviFavoriteRepository {
+        return MuviFavoriteRepositoryImpl(db)
+    }
 
-    @Binds
-    abstract fun provideUseCase(useCaseImpl: MuviFavoriteUseCaseImpl): MuviFavoriteUseCase
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(MuviFavoriteViewModel::class)
-    abstract fun provideViewModel(binds: MuviFavoriteViewModel): ViewModel
+    @Provides
+    @ViewModelScoped
+    fun provideUseCase(repo: MuviFavoriteRepository): MuviFavoriteUseCase {
+        return MuviFavoriteUseCaseImpl(repo)
+    }
 }

@@ -3,7 +3,6 @@ package com.andriiginting.muvi.detail.presentation
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.andriiginting.base_ui.MuviBaseFlowViewModel
 import com.andriiginting.core_network.DetailsMovieData
@@ -11,10 +10,8 @@ import com.andriiginting.core_network.MovieItem
 import com.andriiginting.muvi.detail.domain.MuviDetailUseCase
 import com.andriiginting.uttils.singleIo
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -31,6 +28,8 @@ class MuviDetailViewModel @Inject constructor(
     val haveSimilarMovie: State<List<MovieItem>>
         get() = _haveSimilarMovie
 
+    private var currentMovieItem: MovieItem = MovieItem()
+
     private val _favoritedMovie: MutableState<Boolean> = mutableStateOf(false)
     val favoritedMovie: State<Boolean>
         get() = _favoritedMovie
@@ -41,6 +40,7 @@ class MuviDetailViewModel @Inject constructor(
             .compose(singleIo())
             .subscribe({ data ->
                 _state.value = MovieDetailViewState.GetMovieData(data.movie)
+                currentMovieItem = data.movie
                 handleSimilarMovieData(data)
             }, { error ->
                 _state.value = MovieDetailViewState.GetMovieDataError(error)
@@ -53,41 +53,28 @@ class MuviDetailViewModel @Inject constructor(
         }
     }
 
-    fun storeFavoriteMovie(movieItem: MovieItem) {
-        useCase.storeToDatabase(movieItem)
-            .subscribeOn(Schedulers.computation())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                _favoritedMovie.value = true
-            }, { error ->
-                Timber.e(error, "failed to store favorite movie")
-            })
-            .let(addDisposable::add)
+    fun storeFavoriteMovie() {
+        viewModelScope.launch(Dispatchers.IO) {
+            useCase.storeToDatabase(currentMovieItem).collect {
+                _favoritedMovie.value = it != null
+            }
+        }
     }
 
     fun removeFavoriteMovie(movieId: String) {
-        useCase.removeFromDatabase(movieId)
-            .subscribe({
-                _favoritedMovie.value = false
-            }, { error ->
-                Timber.e(error, "failed to remove favorite movie")
-            })
-            .let(addDisposable::add)
+        viewModelScope.launch(Dispatchers.IO) {
+            useCase.removeFromDatabase(movieId).collect {
+                _favoritedMovie.value = it != null
+            }
+        }
     }
 
     fun checkFavoriteMovie(movieId: String) {
-        useCase.checkFavoriteMovie(movieId)
-            .subscribeOn(Schedulers.computation())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe { Timber.d("check favorite") }
-            .subscribe({ data ->
-                if (data != null) {
-                    _favoritedMovie.value = true
-                }
-            }, { error ->
-                _favoritedMovie.value = false
-            })
-            .let(addDisposable::add)
+        viewModelScope.launch(Dispatchers.IO) {
+            useCase.checkFavoriteMovie(movieId).collect {
+                _favoritedMovie.value = !it?.title.isNullOrEmpty()
+            }
+        }
     }
 
     private fun handleSimilarMovieData(data: DetailsMovieData) {

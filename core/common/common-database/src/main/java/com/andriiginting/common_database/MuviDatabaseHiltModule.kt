@@ -5,6 +5,7 @@ import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SupportFactory
@@ -24,5 +25,10 @@ object MuviDatabaseHiltModule {
             .fallbackToDestructiveMigration()
             .openHelperFactory(factory)
             .build()
+    }
+
+    @Provides
+    fun provideChannelDao(appDatabase: MuviDatabase): MuviFavoriteDAO {
+        return appDatabase.theaterDAO()
     }
 }

@@ -34,6 +34,7 @@ dependencies {
     implementation libraries.lottie
     implementation libraries.deeplinkDispatch
     implementation libraries.roomRuntime
+    implementation libraries.roomKtx
     kapt libraries.deeplinkDispatchProcessor
     kapt libraries.roomCompiler
 

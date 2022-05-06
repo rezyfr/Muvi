@@ -8,5 +8,4 @@ import com.andriiginting.core_network.MuviSearchService
 interface MuviAppDeps {
     fun muviDetailService(): MuviDetailService
     fun muviSearchService(): MuviSearchService
-    fun dbService(): MuviDatabase
 }

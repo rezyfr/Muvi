@@ -8,13 +8,15 @@ import com.andriiginting.uttils.singleIo
 import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 interface MuviDetailUseCase {
     fun getDetailMovies(movieId: String): Single<DetailsMovieData>
-    fun storeToDatabase(data: MovieItem): Single<Long>
-    fun removeFromDatabase(movieId: String): Single<Unit>
-    fun checkFavoriteMovie(movieId: String): Maybe<MovieItem>
+    fun storeToDatabase(data: MovieItem): Flow<Long?>
+    fun removeFromDatabase(movieId: String): Flow<Long?>
+    fun checkFavoriteMovie(movieId: String): Flow<MovieItem?>
 }
 
 class MuviDetailUseCaseImpl @Inject constructor(
@@ -32,19 +34,16 @@ class MuviDetailUseCaseImpl @Inject constructor(
         )
     }
 
-    override fun storeToDatabase(data: MovieItem): Single<Long> {
+    override fun storeToDatabase(data: MovieItem): Flow<Long?> {
         val movieEntity = mapper.mapToMuviFavorite(data)
-        return repository.storeToDatabase(movieEntity)
+        return flow { emit(repository.storeToDatabase(movieEntity)) }
     }
 
-    override fun removeFromDatabase(movieId: String): Single<Unit> {
-        return repository.removeFromDatabase(movieId)
-            .compose(singleIo())
+    override fun removeFromDatabase(movieId: String): Flow<Long?> {
+        return flow { emit(repository.removeFromDatabase(movieId))}
     }
 
-    override fun checkFavoriteMovie(movieId: String): Maybe<MovieItem> {
-        return repository.isFavoriteMovie(movieId.toInt())
-            .map(mapper::mapToMovieItem)
-            .compose(maybeIo())
+    override fun checkFavoriteMovie(movieId: String): Flow<MovieItem> {
+        return repository.isFavoriteMovie(movieId.toInt()).map(mapper::mapToMovieItem)
     }
 }

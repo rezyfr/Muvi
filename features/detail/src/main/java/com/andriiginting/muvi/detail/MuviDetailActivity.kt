@@ -198,7 +198,7 @@ class MuviDetailActivity : MuviBaseComposeActivity() {
         if (isFavorite) {
             viewModel.removeFavoriteMovie(movieId)
         } else {
-            movieItem.let(viewModel::storeFavoriteMovie)
+            viewModel.storeFavoriteMovie()
         }
     }
 
